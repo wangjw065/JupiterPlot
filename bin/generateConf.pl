@@ -11,6 +11,7 @@ my $rawKaryotype  = "";
 my $scaffoldFiles = "";
 my $scafftigsBED  = "";
 my $agpFile       = "";
+my $diffOnly      = 0;
 my $numScaff      = 90;
 my $rawConf       = "rawConf.conf";
 my $prefix        = "circos";
@@ -21,7 +22,8 @@ my $result        = GetOptions(
 	'b=s' => \$scafftigsBED,
 	'a=s' => \$agpFile,
 	'r=s' => \$rawConf,
-	'p=s' => \$prefix
+	'p=s' => \$prefix,
+	'd' => \$diffOnly
 );
 
 my $outputkaryotype = $prefix . ".karyotype";
@@ -259,12 +261,14 @@ sub outputLinks {
 	my %scaffoldOrder;
 	my %scaffoldStart;
 	my %bestDirection;
+	my %bestChrs;
 
 	#for reordering the scaffolds to best location
 	foreach my $key ( keys(%bestScaffToChrSize) ) {
 		my $sizeRef   = $bestScaffToChrSize{$key};
 		my $startsRef = $bestScaffToChrStart{$key};
 		my $bestChr   = 0;
+		$bestChrs{$key} = $bestChr;
 		my $bestNum   = 0;
 		my $start     = 0;
 		foreach my $i ( keys( %{$sizeRef} ) ) {
@@ -290,6 +294,14 @@ sub outputLinks {
 		$scaffoldID =~ s/^contig//;
 		$scaffoldID =~ s/_\d+$//;
 		if ( exists $scaffolds{$scaffoldID} && $refIDMap{ $tempArray[0] } ) {
+			#determine if link is congurent
+			#check best chromosome of link
+			if($bestChrs{$scaffoldID} != $refIDMap{ $tempArray[0] }){
+				
+			}
+			#if link chromosome does not match
+			#check relative location of link to rest of scaffold
+			#if link does not share the same location flag the link
 
 			#this is flipped because we want to mirror the orientation
 			if ( $bestDirection{$scaffoldID} >= 0 ) {
@@ -358,16 +370,14 @@ sub outputLinks {
 	print STDERR $chrOrder[ scalar(@chrOrder) - 1 ] . "\n";
 
 	foreach my $key (@chrOrder) {
-
-		#		$scaffoldFH->write( $key . "\t" . $chromosomes{$key} . "\n" );
+#		$scaffoldFH->write( $key . "\t" . $chromosomes{$key} . "\n" );
 		if ( !exists $scaffoldOrder{$key} ) {
 			print STDERR $chromosomes{$key} . " has no alignments\n";
 		}
 	}
 
 	foreach my $key ( keys(%scaffolds) ) {
-
-		#		$scaffoldFH->write( $scaffolds{$key} . "\t" . $key . "\n" );
+#		$scaffoldFH->write( $scaffolds{$key} . "\t" . $key . "\n" );
 		if ( !exists $scaffoldStart{ $scaffolds{$key} } ) {
 			print STDERR $key . " has no alignments\n";
 		}
